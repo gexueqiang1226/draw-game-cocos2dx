@@ -59,6 +59,7 @@ bool HelloWorld::init()
 		// add your codes below...
 		//////////////////////////////////////////////////////////////////////////
 
+		size = CCDirector::sharedDirector()->getWinSize();
 		// 1. Add a menu item with "X" image, which is clicked to quit the program.
 
 		// Create a "close" menu item with close icon, it's an auto release object.
@@ -88,7 +89,6 @@ bool HelloWorld::init()
 		CC_BREAK_IF(! pLabel);
 
 		// Get window size and place the label upper. 
-		size = CCDirector::sharedDirector()->getWinSize();
 		pLabel->setPosition(ccp(40, size.height-24 ));
 
 		// Add the label to HelloWorld layer as a child layer.
@@ -423,7 +423,8 @@ void HelloWorld::JudgeClose(int &close1,int &close2)
 		求得: (t^2+1)△x^2 = k^2
 	*/
 	//k的值要按照比例来确定
-	float k = Cal_k() * 3;
+	//TODO 确定延长的长度
+	float k = Cal_k() * 30;
 	if(k < 0.3)   k = 0.3;
 	CCLog("k = %lf \n",k);//调试专用
 	if(PlantLineNum > 1)
@@ -567,7 +568,7 @@ void HelloWorld::JudgeClose(int &close1,int &close2)
 }
 
 /************************************************************************/
-/*计算PlantLine中 点的平均距离                                          */
+/*计算PlantLine中所有点的平均距离                                          */
 /************************************************************************/
 float HelloWorld:: Cal_k()
 {
