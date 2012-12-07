@@ -1,16 +1,16 @@
 #include "HelloWorldScene.h"
+#include "Mainmenu.h"
 
 using namespace cocos2d;
 
 enum {
+	kTagBackground,
+	kTagClosebutton,
 	kTagTimeLabel,
 	kTagScoreLabel,
-	kTagSprite3,
-	kTagSprite4,
-	kTagSprite5,
-	kTagSprite6,
-	kTagSprite7,
-	kTagSprite8,
+	kTagProgressBack,
+	kTagProgress,
+	kTagGoalShape,
 };
 
 CCScene* HelloWorld::scene()
@@ -59,16 +59,27 @@ bool HelloWorld::init()
 		// add your codes below...
 		//////////////////////////////////////////////////////////////////////////
 
+		//窗口大小
 		size = CCDirector::sharedDirector()->getWinSize();
-		// 1. Add a menu item with "X" image, which is clicked to quit the program.
 
-		// Create a "close" menu item with close icon, it's an auto release object.
+		//背景
+		// Add add a splash screen background
+		CCSprite* pSprite = CCSprite::create("background.png");
+		CC_BREAK_IF(! pSprite);
+
+		// Place the sprite on the center of the screen
+		pSprite->setPosition(ccp(size.width/2, size.height/2));
+
+		// Add the sprite to HelloWorld layer as a child layer.
+		this->addChild(pSprite,0, kTagBackground);
+
+
 		//一个可以点击的x按钮
 		CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
 			"CloseNormal.png",
 			"CloseSelected.png",
 			this,
-			menu_selector(HelloWorld::menuCloseCallback));//关闭的方法函数
+			menu_selector(HelloWorld::menuCloseCallback));//返回主菜单方法
 		CC_BREAK_IF(! pCloseItem);
 
 		// Place the menu item bottom-right conner.
@@ -80,30 +91,44 @@ bool HelloWorld::init()
 		CC_BREAK_IF(! pMenu);
 
 		// Add the menu to HelloWorld layer as a child layer.
-		this->addChild(pMenu, 1);
+		this->addChild(pMenu,1, kTagClosebutton);
 
-		// 2. Add a label shows "Hello World".
 
-		// Create a label and initialize with string "Hello World".
+		//得分
+		// Create a label and initialize with string ScoreLabel
 		CCLabelTTF* pLabel = CCLabelTTF::create("00000", "Arial", 24);
 		CC_BREAK_IF(! pLabel);
 
 		// Get window size and place the label upper. 
 		pLabel->setPosition(ccp(40, size.height-24 ));
+		ccColor3B color = ccc3(500,0,0);
+		pLabel->setColor(color);
 
 		// Add the label to HelloWorld layer as a child layer.
 		this->addChild(pLabel, 1,kTagScoreLabel);
 
+		//进度条背景
+		CCSprite* progressback = CCSprite::create("timerback.png");
+		progressback->setPosition(ccp(size.width/2,progressback->getContentSize().height));
+		this->addChild(progressback,0,kTagProgressBack);
 
-		// 3. Add add a splash screen, show the cocos2d splash image.
-		CCSprite* pSprite = CCSprite::create("background.png");
-		CC_BREAK_IF(! pSprite);
+		//进度条
+		CCProgressTo *to1 = CCProgressTo::create(1,100);
+		CCProgressTimer *left = CCProgressTimer::create(CCSprite::create("timer.png"));
+		left->setType(kCCProgressTimerTypeBar);
+		left->setMidpoint(ccp(0,1));
+		left->setBarChangeRate(ccp(1,0));
+		left->setPosition(ccp(size.width/2,progressback->getContentSize().height));
+		left->setPercentage(0);
+		this->addChild(left,1,kTagProgress);
 
-		// Place the sprite on the center of the screen
-		pSprite->setPosition(ccp(size.width/2, size.height/2));
-
-		// Add the sprite to HelloWorld layer as a child layer.
-		this->addChild(pSprite, 0);
+		//目标形状
+		GoalShape = 3*CCRANDOM_0_1() + 3;
+		char t_str[10];
+		sprintf(t_str,"%d.png",GoalShape);
+		CCSprite* pGoalshape = CCSprite::create(t_str);
+		pGoalshape->setPosition(ccp((size.width+progressback->getContentSize().width)/2+pGoalshape->getContentSize().width,progressback->getContentSize().height));
+		this->addChild(pGoalshape,1,kTagGoalShape);
 
 		//时间
 		AddTimeLabel();
@@ -119,8 +144,9 @@ bool HelloWorld::init()
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
-	// "close" menu item clicked
-	CCDirector::sharedDirector()->end();
+	CCScene *pScene = MainMenu::scene();
+
+	CCDirector::sharedDirector()->replaceScene(CCTransitionFlipX::transitionWithDuration(0.5f,pScene,kOrientationRightOver));
 }
 
 
@@ -137,16 +163,31 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 		CCTouch* pTouch = (CCTouch*)(*iter);
 		CCPoint location = pTouch->getLocation();
 
-		if(numofSPA<200){
-			SpriteArray[numofSPA] = NULL;
-			SpriteArray[numofSPA] = makeStarSprite(location.x,location.y);
-			if(SpriteArray[numofSPA]!=NULL){
-				numofSPA++;
+		if(numofSPA == 150){
+			//更新进度条颜色
+			CCProgressTimer* labelt = (CCProgressTimer*)getChildByTag(kTagProgress);
+			labelt->setColor(ccc3(500,0,0));
+		}
 
-				PlantLine[PlantLineNum+1].x = location.x;
-				PlantLine[PlantLineNum+1].y =location.y;
-				plainlen += PlantLine[PlantLineNum].Dis_PointToPoint(PlantLine[PlantLineNum+1]);
-				PlantLineNum++;
+		if(numofSPA<200){
+			if(numofSPA==0 ||
+				abs(SpriteArray[numofSPA-1]->getPositionX()-location.x)
+				+abs(SpriteArray[numofSPA-1]->getPositionY()-location.y)>10.0f){
+
+					//更新进度条
+					CCProgressTimer* labelt = (CCProgressTimer*)getChildByTag(kTagProgress);
+					labelt->setPercentage(numofSPA>>1);
+
+					SpriteArray[numofSPA] = NULL;
+					SpriteArray[numofSPA] = makeStarSprite(location.x,location.y);
+					if(SpriteArray[numofSPA]!=NULL){
+						numofSPA++;
+
+						PlantLine[PlantLineNum+1].x = location.x;
+						PlantLine[PlantLineNum+1].y =location.y;
+						plainlen += PlantLine[PlantLineNum].Dis_PointToPoint(PlantLine[PlantLineNum+1]);
+						PlantLineNum++;
+					}
 			}
 
 		}
@@ -155,6 +196,7 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 
 void HelloWorld::ccTouchesEnded(CCSet* pTouches, CCEvent* pEvent)
 {
+
 	for(int i=0;i<numofSPA;i++){
 		StarSpriteDown(SpriteArray[i]);
 	}
@@ -167,36 +209,111 @@ void HelloWorld::ccTouchesEnded(CCSet* pTouches, CCEvent* pEvent)
 	}
 	numofSPA = 0;
 	PlantLineNum = 0;
+
+	//提示结果
+
+
+
+	//更新目标形状
+	spriteFinished(getChildByTag(kTagGoalShape));
+	GoalShape = 3*CCRANDOM_0_1() + 3;
+	char t_str[10];
+	sprintf(t_str,"%d.png",GoalShape);
+	CCSprite* pGoalshape = CCSprite::create(t_str);
+	pGoalshape->setPosition(ccp((size.width+getChildByTag(kTagProgressBack)->getContentSize().width)/2+pGoalshape->getContentSize().width,getChildByTag(kTagProgressBack)->getContentSize().height));
+	this->addChild(pGoalshape,1,kTagGoalShape);
+
+
+	//更新进度条
+	CCProgressTimer* labelt = (CCProgressTimer*)getChildByTag(kTagProgress);
+	labelt->setPercentage(numofSPA>>1);
+	labelt->setColor(ccc3(500,500,0));
+
 }
 
+/************************************************************************/
+/* //时间文字                                                           */
+/************************************************************************/
 void HelloWorld::AddTimeLabel()
 {
 	m_time = 0;
 	CCLabelTTF* label = CCLabelTTF::create("0.00", "Arial", 24);
-	addChild(label,1, kTagTimeLabel);
 	label->setPosition( ccp(size.width-50,size.height-20) );
-	label->setOpacity( 80 );
 	schedule(schedule_selector(HelloWorld::step)); 
+	addChild(label,1, kTagTimeLabel);
 }
+/************************************************************************/
+/* //时间更新事件                                                       */
+/************************************************************************/
 void HelloWorld::step(float dt)
 {
-	m_time += dt;
-	char str[12] = {0};
-	sprintf(str, "%2.2f", m_time);
-
-	CCLabelTTF* label = (CCLabelTTF*)getChildByTag(kTagTimeLabel);
-	label->setString(str);
-
-
+	//更新分数
 	if(now_score<m_score){
 		now_score++;
+		if(now_score==100 || now_score==200 || now_score==500 || now_score==1000 || now_score==3000 || now_score==5000 || now_score==10000 || now_score==30000
+			|| now_score==50000 || now_score==99999){
+				SpecilScore(now_score);
+		}
 		char str[12] = {0};
 		sprintf(str, "%05d", now_score);
 		CCLabelTTF* label = (CCLabelTTF*)getChildByTag(kTagScoreLabel);
 		label->setString(str);
 	}
+
+	if(m_time>49.99f&&m_time<50.01f){
+		ccColor3B color = ccc3(500,0,0);
+		CCLabelTTF* labelt = (CCLabelTTF*)getChildByTag(kTagTimeLabel);
+		labelt->setColor(color);
+	}
+
+
+	if(m_time>59.99f){
+		CCLabelTTF* labelt = (CCLabelTTF*)getChildByTag(kTagTimeLabel);
+		labelt->setString("Time Out");
+		return ;
+	}
+
+	m_time += dt;
+	char str[12] = {0};
+	sprintf(str, "%2.2f", 60.00f-m_time);
+
+	CCLabelTTF* label = (CCLabelTTF*)getChildByTag(kTagTimeLabel);
+	label->setString(str);
+
+
+}
+/************************************************************************/
+/* 特殊得分                                                             */
+/************************************************************************/
+void HelloWorld::SpecilScore(int t){
+	char str[10];
+	sprintf(str,"%d.png",t);
+	CCSprite* pSprite = CCSprite::create(str);
+	pSprite->setPosition(ccp(-pSprite->getContentSize().width,size.height-pSprite->getContentSize().height));
+	addChild(pSprite, 0);
+	pSprite->runAction( CCSequence::actions(
+		CCMoveTo::actionWithDuration(0.8f, ccp(pSprite->getContentSize().width,size.height-pSprite->getContentSize().height)),
+		CCCallFuncN::actionWithTarget(this, 
+		callfuncN_selector(HelloWorld::spriteFinished)), 
+		NULL) );
 }
 
+/************************************************************************/
+/*        accepted  ||  wrong_answer									*/
+/************************************************************************/
+void HelloWorld::ResultText(bool b){
+	char str[20];
+	b? (sprintf(str,"%s","accepted.png")):(sprintf(str,"%s","wrong_answer.png"));
+
+	CCSprite* pSprite = CCSprite::create(str);
+	pSprite->setPosition(ccp(size.width/2,size.height/2));
+	addChild(pSprite,1);
+	pSprite->runAction( CCSequence::actions(
+		CCMoveTo::actionWithDuration(0.8f, ccp(size.width/2,size.height)),
+		CCCallFuncN::actionWithTarget(this, 
+		callfuncN_selector(HelloWorld::spriteFinished)), 
+		NULL) );
+}
 /************************************************************************/
 /* 删除精灵                                                             */
 /************************************************************************/
@@ -205,7 +322,6 @@ void HelloWorld::spriteFinished(CCNode* sender){
 	this->removeChild(sprite,true);
 	if(temp_score!=0)
 		m_score+=temp_score,temp_score=0;
-
 }
 
 /************************************************************************/
@@ -223,8 +339,6 @@ CCNode* HelloWorld::makeStarSprite(float x,float y){
 	pSprite->setPositionY(y);
 
 	addChild(pSprite, 0);
-
-
 	return pSprite;
 
 }
@@ -259,6 +373,8 @@ void HelloWorld::StarSpriteDown(cocos2d::CCNode* sender){
 void HelloWorld::StarSpriteUp(cocos2d::CCNode* sender)
 {
 	CCSprite *pSprite  = (CCSprite *) sender;
+	if(sender==NULL)
+		return;
 
 	CCPoint cbegan = ccp(pSprite->getPositionX(),pSprite->getPositionY());
 	CCPoint cend = CCPoint(10,size.height);
@@ -276,6 +392,9 @@ void HelloWorld::StarSpriteUp(cocos2d::CCNode* sender)
 		NULL) );
 }
 
+/************************************************************************/
+/* //TODO 当前时间，毫秒，暂时不用                                      */
+/************************************************************************/
 long HelloWorld::millisecondNow()  
 { 
 	struct cc_timeval now; 
@@ -301,7 +420,7 @@ void HelloWorld::JudgeShape(int s,int t)
 	int cross_len = 6;//突变点距离
 	int lase_cross = 0;
 	cross[0] = s;
-	CCLog("began cluculate between : %d %d\n",s,t);
+	// 	CCLog("began cluculate between : %d %d\n",s,t);
 	for(i=s;i<t;i++)
 	{
 		temp = AngleofLines(MyLine(PlantLine[i+1],PlantLine[i]) , MyLine(PlantLine[i+1],PlantLine[i+2]));
@@ -319,35 +438,38 @@ void HelloWorld::JudgeShape(int s,int t)
 					index++;
 				}
 				lase_cross = i;
-				CCLog("<%012.3lf>  ",temp);//调试专用
+				// 				CCLog("<%012.3lf>  ",temp);//调试专用
 			}
-			else
-			{
-				CCLog("%14.3lf  ",temp);//调试专用
-			}
+			// 			else
+			// 			{
+			// 				CCLog("%14.3lf  ",temp);//调试专用
+			// 			}
 		}
-		else
-			CCLog("\t   INF  ");
+		// 		else{
+		// 			CCLog("\t   INF  ");
+		// 		}
 	}
-	CCLog("\n");//调试专用
-	CCLog("==180: %d / %d -- %.4lf\n",sum3,t-s+1,(double(sum3) / (t-s+1)));//调试专用
-	CCLog(">=175: %d / %d -- %.4lf\n",sum1,t-s+1,(double(sum1) / (t-s+1)));//调试专用
-	CCLog("160-175: %d / %d -- %.4lf\n",sum2,t-s+1,(double(sum2) / (t-s+1)));//调试专用
+	// 	CCLog("\n");//调试专用
+	// 	CCLog("==180: %d / %d -- %.4lf\n",sum3,t-s+1,(double(sum3) / (t-s+1)));//调试专用
+	// 	CCLog(">=175: %d / %d -- %.4lf\n",sum1,t-s+1,(double(sum1) / (t-s+1)));//调试专用
+	// 	CCLog("160-175: %d / %d -- %.4lf\n",sum2,t-s+1,(double(sum2) / (t-s+1)));//调试专用
 
 
-	if(index > 6)
-		CCLog("WTF");
-// 		CCLog("晕死，这是什么图形啊\n");
+	//	if(index > 6)
+	//		CCLog("WTF");
+	// 		CCLog("晕死，这是什么图形啊\n");
 
 
-	CCLog("Cross_len : %d So many angle %d\n",cross_len,index);
+	//	CCLog("Cross_len : %d So many angle %d\n",cross_len,index);
 	for (i = 0; i < index ; i++)
 	{
 		crossPoint[i] = PlantLine[cross[i]];
 	}
-	
+
 	if( ( (double(sum1) / (t-s))  < 0.45 && (double(sum2) / (t-s)) > 0.45) || index >= 6)//暂时把这种情况看为是一个圆
 	{
+		JudgeResult = 5;//
+
 		MyPoint O_mid;
 		float O_r;
 		float temp_x = 0, temp_y = 0 , temp_r = 0;
@@ -366,39 +488,41 @@ void HelloWorld::JudgeShape(int s,int t)
 
 		PushCricle(O_mid.x,O_mid.y,O_r);
 
-		CCLog("Judge->yuan xing");
+		// 		CCLog("Judge->yuan xing");
 		//TODO 判定分数
-// 		JudgeCricleScore(O_mid.x,O_mid.y,O_r);
+		// 		JudgeCricleScore(O_mid.x,O_mid.y,O_r);
 	}
 	else
 	{
 		//给点逆时针排序
 		SortPoint(crossPoint,index);
 		//调试专用 排序结果
-		for(int i  = 0 ;i < index ; i++)
-		{
-			CCLog(" %d  %.4lf %.4lf\n",i,crossPoint[i].x,crossPoint[i].y);
-		}
+		// 		for(int i  = 0 ;i < index ; i++)
+		// 		{
+		// 			CCLog(" %d  %.4lf %.4lf\n",i,crossPoint[i].x,crossPoint[i].y);
+		// 		}
 		//调试专用*/
 		crossPoint[index] =crossPoint[0];
 		if(index == 4)
 		{
+			JudgeResult = 4;
 			PushFourPoint(PlantLine[cross[0]].x,PlantLine[cross[0]].y,
-						  PlantLine[cross[1]].x,PlantLine[cross[1]].y,
-						  PlantLine[cross[2]].x,PlantLine[cross[2]].y,
-						  PlantLine[cross[3]].x,PlantLine[cross[3]].y);
-			CCLog("Judge->si bian xing");
+				PlantLine[cross[1]].x,PlantLine[cross[1]].y,
+				PlantLine[cross[2]].x,PlantLine[cross[2]].y,
+				PlantLine[cross[3]].x,PlantLine[cross[3]].y);
+			//			CCLog("Judge->si bian xing");
 			//TODO 判定分数
-// 			JudgeSquareScore(crossPoint,index);
+			// 			JudgeSquareScore(crossPoint,index);
 		}
 		if(index == 3)
 		{
+			JudgeResult = 3;
 			PushThreePoint(PlantLine[cross[0]].x,PlantLine[cross[0]].y,
-						   PlantLine[cross[1]].x,PlantLine[cross[1]].y,                                                                                                                                                    
-						   PlantLine[cross[2]].x,PlantLine[cross[2]].y);
-			CCLog("Judge->san jiao xing");
+				PlantLine[cross[1]].x,PlantLine[cross[1]].y,                                                                                                                                                    
+				PlantLine[cross[2]].x,PlantLine[cross[2]].y);
+			// 			CCLog("Judge->san jiao xing");
 			//TODO 判定分数
-// 			JudgeSquareScore(crossPoint,index);
+			// 			JudgeSquareScore(crossPoint,index);
 		}
 	}
 
@@ -418,15 +542,15 @@ void HelloWorld::JudgeClose(int &close1,int &close2)
 	int num_cross = 0; // 这个新加的变量来记录有多少个相交点，太多相交点，就是不合法的图形
 	//先判断图形是不是近似闭合的,把图形的开始点和结尾点稍微延长一点
 	/*  △x^2 + △y^2 = k^2
-		△y / △x = t
-		其中 k是延长的近似的长度，t = (y1 - y2)/(x1 - x2) 为斜率
-		求得: (t^2+1)△x^2 = k^2
+	△y / △x = t
+	其中 k是延长的近似的长度，t = (y1 - y2)/(x1 - x2) 为斜率
+	求得: (t^2+1)△x^2 = k^2
 	*/
 	//k的值要按照比例来确定
 	//TODO 确定延长的长度
-	float k = Cal_k() * 30;
+	float k = Cal_k() *0.3;
 	if(k < 0.3)   k = 0.3;
-	CCLog("k = %lf \n",k);//调试专用
+	// 	CCLog("k = %lf \n",k);//调试专用
 	if(PlantLineNum > 1)
 	{
 		//这是开始点的延长
@@ -551,10 +675,10 @@ void HelloWorld::JudgeClose(int &close1,int &close2)
 			}
 		}
 	}
-	else
-	{
-		CCLog("两个点都没有也想哄我？!!\n");
-	}
+	// 	else
+	// 	{
+	// 		CCLog("两个点都没有也想哄我？!!\n");
+	// 	}
 
 	if(min_cross_point_len == inf && min_oneToLine == inf)
 	{
@@ -587,14 +711,25 @@ void HelloWorld::PushCricle(float _x,float _y,float _r)
 	MyPoint *pointrtemp;
 	float C = 2 * _r * PI; 
 	//星星是约1/10的大小,星星之间留半个星星位置
-	int num_star = int(C / 30.0);
+	int num_star = int(C / 10.0);
 	float temp = 360.0 / num_star;
 	for (i=0;i<(360);i+=temp)
 	{
 		pointrtemp= new MyPoint(_x + cos((i)/180.0 * PI) * _r,_y + sin((i)/180.0 * PI) * _r);
-		StarSpriteUp(makeStarSprite(pointrtemp->x,pointrtemp->y));
-
-		temp_score ++;
+		if(JudgeResult == GoalShape){
+			StarSpriteUp(makeStarSprite(pointrtemp->x,pointrtemp->y));
+			temp_score ++;
+			ResultText(true);
+		}else{
+			CCDelayTime *waiting=CCDelayTime::actionWithDuration(0.2f);  
+			CCSprite *p  = (CCSprite *)makeStarSprite(pointrtemp->x,pointrtemp->y);
+			p->runAction( CCSequence::actions(
+				waiting,
+				CCCallFuncN::actionWithTarget(this, 
+				callfuncN_selector(HelloWorld::spriteFinished)), 
+				NULL) );
+			ResultText(false);
+		}
 	}
 }
 void HelloWorld::PushLine(float _x1,float _y1,float _x2, float _y2,const float len)
@@ -605,9 +740,21 @@ void HelloWorld::PushLine(float _x1,float _y1,float _x2, float _y2,const float l
 
 		pointrtemp= new MyPoint((_x1 + _x2)/2,(_y1 + _y2)/2);
 
-		StarSpriteUp(makeStarSprite(pointrtemp->x,pointrtemp->y));
+		if(JudgeResult == GoalShape){
+			StarSpriteUp(makeStarSprite(pointrtemp->x,pointrtemp->y));
+			temp_score ++;
+			ResultText(true);
+		}else{
+			CCDelayTime *waiting=CCDelayTime::actionWithDuration(0.2f);  
+			CCSprite *p  = (CCSprite *)makeStarSprite(pointrtemp->x,pointrtemp->y);
+			p->runAction( CCSequence::actions(
+				waiting,
+				CCCallFuncN::actionWithTarget(this, 
+				callfuncN_selector(HelloWorld::spriteFinished)), 
+				NULL) );
+			ResultText(false);
+		}
 
-		temp_score ++;
 
 		PushLine(_x1,_y1,pointrtemp->x,pointrtemp->y,len);
 		PushLine(_x2,_y2,pointrtemp->x,pointrtemp->y,len);
@@ -615,15 +762,15 @@ void HelloWorld::PushLine(float _x1,float _y1,float _x2, float _y2,const float l
 }
 void HelloWorld::PushFourPoint(float _x1,float _y1,float _x2,float _y2,float _x3,float _y3,float _x4,float _y4)
 {
-	PushLine(_x1,_y1,_x2,_y2,22.0f);
-	PushLine(_x2,_y2,_x3,_y3,22.0f);
-	PushLine(_x3,_y3,_x4,_y4,22.0f);
-	PushLine(_x4,_y4,_x1,_y1,22.0f);
+	PushLine(_x1,_y1,_x2,_y2,10.0f);
+	PushLine(_x2,_y2,_x3,_y3,10.0f);
+	PushLine(_x3,_y3,_x4,_y4,10.0f);
+	PushLine(_x4,_y4,_x1,_y1,10.0f);
 }
 void HelloWorld::PushThreePoint(float _x1,float _y1,float _x2,float _y2,float _x3,float _y3)
 {
-	PushLine(_x1,_y1,_x2,_y2,22.0f);
-	PushLine(_x2,_y2,_x3,_y3,22.0f);
-	PushLine(_x3,_y3,_x1,_y1,22.0f);
+	PushLine(_x1,_y1,_x2,_y2,10.0f);
+	PushLine(_x2,_y2,_x3,_y3,10.0f);
+	PushLine(_x3,_y3,_x1,_y1,10.0f);
 }
 
