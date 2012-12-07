@@ -39,6 +39,10 @@ public:
 	int now_score;//显示的分数
 	int temp_score;//延时分数
 
+
+	int GoalShape;//目标形状
+	int JudgeResult;//判断结果
+
 	void AddTimeLabel();//时间文字
 	void step(float dt);//时间更新事件
 
@@ -50,16 +54,15 @@ public:
 	virtual void ccTouchesMoved(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
 	virtual void ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
 
-
 	void spriteFinished(cocos2d::CCNode* sender);//删除精灵
-	cocos2d::CCNode* makeStarSprite(float x,float y);//生成精灵
+	cocos2d::CCNode* makeStarSprite(float x,float y);//生成星星精灵
 	void StarSpriteDown(cocos2d::CCNode* sender);//精灵的下落动画
 	void StarSpriteUp(cocos2d::CCNode* sender);//精灵的上升动画
-
-
+	void SpecilScore(int);//特殊得分
+	void ResultText(bool);//Accept WrongAnswer
 
 	void JudgeClose(int &close1,int &close2);//封闭区间
-	void JudgeShape(int s,int t);//封闭形状
+	void JudgeShape(int s,int t);//判断封闭形状
 
 	//*计算PlantLine中 点的平均距离      
 	float Cal_k();

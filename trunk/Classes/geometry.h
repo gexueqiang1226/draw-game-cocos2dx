@@ -1,4 +1,5 @@
-
+#ifndef __GEOMETRY_H__
+#define __GEOMETRY_H__
 
 const float inf = 1000000000;
 const float PI = 3.1415926;
@@ -46,8 +47,7 @@ public:
 	MyPoint B;
 public:
 	MyLine(float _Ax,float _Ay,float _Bx,float _By);
-	MyLine(MyPoint  , MyPoint );
-	virtual ~MyLine(void);
+	MyLine(MyPoint , MyPoint);
 public:
 	bool isPointInLine(MyPoint A);
 	float Dis_PointToLine(MyPoint temp);
@@ -68,3 +68,6 @@ void SortPoint(MyPoint MP[] , int numPoint);
 
 //点与线的位置关系
 int PointofLine(MyPoint tempPoint,MyLine tempLine);
+
+
+#endif  // __GEOMETRY_H__

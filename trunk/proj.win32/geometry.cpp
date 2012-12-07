@@ -21,14 +21,10 @@ float MyPoint :: Dis_PointToPoint(MyPoint temp)
 	return ans;
 }
 
-MyLine ::~MyLine(void)
-{
 
-}
-
-MyLine :: MyLine(MyPoint _A , MyPoint _B)
+MyLine :: MyLine(MyPoint AA , MyPoint BB)
 {
-	A = _A ; B = _B;
+	A = AA ; B = BB;
 }
 
 MyLine :: MyLine(float _Ax = 0.0 ,float _Ay = 0.0,float _Bx = 0.0 ,float _By = 0.0)

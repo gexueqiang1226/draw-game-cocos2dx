@@ -21,10 +21,6 @@ float MyPoint :: Dis_PointToPoint(MyPoint temp)
 	return ans;
 }
 
-MyLine ::~MyLine(void)
-{
-
-}
 
 MyLine :: MyLine(MyPoint AA , MyPoint BB)
 {
