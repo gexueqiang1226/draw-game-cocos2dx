@@ -279,7 +279,7 @@ obj/local/armeabi/objs-debug/game_shared/__/__/Classes/HelloWorldScene.o: \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../external/chipmunk/include/chipmunk/cpSpace.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../CocosDenshion/android/../include/SimpleAudioEngine.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../CocosDenshion/android/../include/Export.h \
- jni/../../Classes/geometry.h
+ jni/../../Classes/geometry.h jni/../../Classes/Mainmenu.h
 
 jni/../../Classes/HelloWorldScene.h:
 
@@ -840,3 +840,5 @@ jni/../../Classes/HelloWorldScene.h:
 /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../CocosDenshion/android/../include/Export.h:
 
 jni/../../Classes/geometry.h:
+
+jni/../../Classes/Mainmenu.h:
