@@ -1,5 +1,5 @@
-obj/local/armeabi/objs-debug/game_shared/__/__/Classes/AppDelegate.o: \
- jni/../../Classes/AppDelegate.cpp \
+obj/local/armeabi/objs-debug/game_shared/__/__/Classes/MainMenu.o: \
+ jni/../../Classes/MainMenu.cpp jni/../../Classes/Mainmenu.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/include/cocos2d.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/include/ccConfig.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/platform/CCPlatformConfig.h \
@@ -211,7 +211,6 @@ obj/local/armeabi/objs-debug/game_shared/__/__/Classes/AppDelegate.o: \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/CCDrawingPrimitives.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/CCScheduler.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/support/data_support/uthash.h \
- /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/platform/android/CCEGLView.h \
  jni/../../Classes/AppDelegate.h jni/../../Classes/HelloWorldScene.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../external/Box2D/../Box2D/Box2D.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../external/Box2D/../Box2D/Common/b2Settings.h \
@@ -280,7 +279,9 @@ obj/local/armeabi/objs-debug/game_shared/__/__/Classes/AppDelegate.o: \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../external/chipmunk/include/chipmunk/cpSpace.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../CocosDenshion/android/../include/SimpleAudioEngine.h \
  /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../CocosDenshion/android/../include/Export.h \
- jni/../../Classes/geometry.h jni/../../Classes/Mainmenu.h
+ jni/../../Classes/geometry.h
+
+jni/../../Classes/Mainmenu.h:
 
 /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/include/cocos2d.h:
 
@@ -704,8 +705,6 @@ obj/local/armeabi/objs-debug/game_shared/__/__/Classes/AppDelegate.o: \
 
 /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/support/data_support/uthash.h:
 
-/cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../cocos2dx/platform/android/CCEGLView.h:
-
 jni/../../Classes/AppDelegate.h:
 
 jni/../../Classes/HelloWorldScene.h:
@@ -845,5 +844,3 @@ jni/../../Classes/HelloWorldScene.h:
 /cygdrive/d/cocos2d-2.0-x-2.0.3/DrawGame/proj.android/../../CocosDenshion/android/../include/Export.h:
 
 jni/../../Classes/geometry.h:
-
-jni/../../Classes/Mainmenu.h:
